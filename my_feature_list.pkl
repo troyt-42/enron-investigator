@@ -3,8 +3,6 @@ S'poi'
 p1
 aS'salary'
 p2
-aS'from_poi_to_this_person'
+aS'bonus'
 p3
-aS'from_messages'
-p4
 a.

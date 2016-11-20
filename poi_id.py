@@ -2,21 +2,47 @@
 
 import sys
 import pickle
+import matplotlib.pyplot
 sys.path.append("tools/")
+sys.path.append("outliers/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
-
+from enron_outliers import showOutliers
+from outlier_cleaner import outlierCleaner
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-features_list = ['poi','salary','from_poi_to_this_person', 'from_messages'] # You will need to use more features
+features_list = ['poi','salary','bonus'] # You will need to use more features
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
 ### Task 2: Remove outliers
+showOutliers(data_dict=data_dict, features=features_list)
+data = featureFormat(data_dict, features_list, sort_keys = True)
+
+labels, features = targetFeatureSplit(data)
+from sklearn import linear_model
+reg = linear_model.LinearRegression()
+reg.fit(features, labels)
+cleaned_data = outlierCleaner(reg.predict(features), features, labels)
+# print cleaned_data
+cleaned_data_dict = {};
+for point in cleaned_data:
+    salary = point[1]
+    bonus = point[0]
+    for key in data_dict:
+        if (float(data_dict[key]['salary']) == salary[0].item() and float(data_dict[key]['bonus']) == bonus[0].item()):
+            cleaned_data_dict[key] = data_dict[key]
+    matplotlib.pyplot.scatter( salary, bonus )
+
+matplotlib.pyplot.xlabel("salary")
+matplotlib.pyplot.ylabel("bonus")
+matplotlib.pyplot.show()
+data_dict = cleaned_data_dict
+
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
@@ -51,5 +77,5 @@ features_train, features_test, labels_train, labels_test = \
 ### check your results. You do not need to change anything below, but make sure
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
-
+features_list = ['poi','salary','bonus']
 dump_classifier_and_data(clf, my_dataset, features_list)

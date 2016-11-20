@@ -14,8 +14,9 @@ def outlierCleaner(predictions, ages, net_worths):
 
     import numpy as np
     error = [0] * len(predictions)
+    print error
     for idx, val in enumerate(ages):
-        error[idx] = abs(predictions[idx] - net_worths[idx])[0]
+        error[idx] = abs(predictions[idx] - net_worths[idx])
     pointsToBeRemoved = sorted(error)
     pointsToBeRemoved.reverse()
     pointsToBeRemovedIndex = [0] * 9
@@ -25,5 +26,7 @@ def outlierCleaner(predictions, ages, net_worths):
     ages = np.array([s for idx, s in enumerate(ages) if idx not in pointsToBeRemovedIndex]).reshape(-1,1)
     net_worths = np.array([s for idx, s in enumerate(net_worths) if idx not in pointsToBeRemovedIndex]).reshape(-1,1)
     error = np.array([s for idx, s in enumerate(error) if idx not in pointsToBeRemovedIndex]).reshape(-1,1)
-    cleaned_data = [ages, net_worths, error]
+    cleaned_data = [0] * ages.shape[0]
+    for key, value in enumerate(ages):
+        cleaned_data[key] = (value, net_worths[key])
     return cleaned_data
